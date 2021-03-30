@@ -41,4 +41,7 @@ menu "esp-cryptoauthlib"
         int "I2C SCL pin used to communicate with the ATECC608A"
         default 17
 
+    config SCAN_FOR_I2C_ADDRESS
+        bool "Scan for the ATECC608A I2C address"
+
 endmenu # cryptoauthlib
