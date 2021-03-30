@@ -82,7 +82,7 @@ def main():
     init_mfg = hs.serial.cmd_interpreter()
 
     retval = init_mfg.wait_for_init(esp._port)
-    if retval is not True:
+    if not retval == True:
         print("CMD prompt timed out.")
         exit(0)
 
@@ -117,7 +117,7 @@ def provision_trustcustom_device(esp, args, init_mfg):
     print('Serial Number:')
     print(serial_number_hex.upper())
 
-    if args.print_atecc608a_type is True:
+    if args.print_atecc608a_type:
         # print chip info and exit
         exit(0)
     print("Provisioning the Device")
@@ -175,15 +175,15 @@ def provision_trustcustom_device(esp, args, init_mfg):
     hs.serial.esp_cmd_check_ok(retval, "program-signer-cert")
 
 def esp_handle_file(file_name, operation, data=None):
-    if operation is "read":
+    if operation == "read":
         with open(file_name, "r") as cert_file:
             data = cert_file.read()
         return data
-    elif operation is "pem_read":
+    elif operation == "pem_read":
         with open(file_name, "r") as cert_file:
             data = pem.readPemFromFile(cert_file)
         return data
-    elif operation is "write":
+    elif operation == "write":
         with open(file_name, "w+") as cert_file:
             cert_file.write(data)
         return True
