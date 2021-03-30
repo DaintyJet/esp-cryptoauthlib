@@ -33,31 +33,18 @@ def main():
         device_certificate and signer_certificate required for TLS authentication''')
 
     parser.add_argument(
-        "--flash",
-        dest='bin_path',
-        default='/sample_bins/secure_cert_mfg.bin',
-        metavar='relative/path/to/bins',
-        help='relative path(from secure_cert_mfg.py) to binary to be flashed on the ESP device')
-
-    parser.add_argument(
         '--signer-cert',
         dest='signer_cert',
-        default='sample_certs/sample_signer_cert.pem',
+        required=True,
         metavar='relative/path/to/signer_cert.pem',
         help='relative path(from secure_cert_mfg.py) to signer certificate.')
 
     parser.add_argument(
         '--signer-cert-private-key',
         dest='signer_privkey',
-        default='sample_certs/sample_signer_key.pem',
+        required=True,
         metavar='relative/path/to/signer-priv-key',
         help='relative path(from secure_cert_mfg.py) to signer certificate private key')
-
-    parser.add_argument(
-        "--pwd", '--password',
-        dest='password',
-        metavar='[password]',
-        help='the password associated with the private key')
 
     parser.add_argument(
         "--port", '-p',
@@ -65,6 +52,20 @@ def main():
         metavar='[port]',
         required=True,
         help='uart com port to which ESP device is connected')
+
+    parser.add_argument(
+        "--flash",
+        dest='bin_path',
+        default='/sample_bins/secure_cert_mfg_esp32.bin',
+        metavar='relative/path/to/bins',
+        help='relative path(from secure_cert_mfg.py) to binary to be flashed on the ESP device')
+
+
+    parser.add_argument(
+        "--pwd", '--password',
+        dest='password',
+        metavar='[password]',
+        help='the password associated with the private key')
 
     parser.add_argument(
         "--type", "--print-atecc608a-type",
