@@ -35,11 +35,11 @@ menu "esp-cryptoauthlib"
 
     config ACTA_I2C_SDA_PIN
         int "I2C SDA pin used to communicate with the ATECC608A"
-        default 16
+        default 27
 
     config ACTA_I2C_SCL_PIN
         int "I2C SCL pin used to communicate with the ATECC608A"
-        default 17
+        default 33
 
     config SCAN_FOR_I2C_ADDRESS
         bool "Scan for the ATECC608A I2C address"
