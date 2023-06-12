@@ -40,7 +40,7 @@
 #include "hal/atca_hal.h"
 
 #ifndef ATCA_POLLING_INIT_TIME_MSEC
-#define ATCA_POLLING_INIT_TIME_MSEC       1
+#define ATCA_POLLING_INIT_TIME_MSEC       1 //Possibly Change to 60 Although we just need it to be 60
 #endif
 
 #ifndef ATCA_POLLING_FREQUENCY_TIME_MSEC
@@ -300,7 +300,7 @@ ATCA_STATUS atca_execute_command(ATCAPacket* packet, ATCADevice device)
         execution_or_wait_time = device->mCommands->execution_time_msec;
         max_delay_count = 0;
 #else
-        execution_or_wait_time = ATCA_POLLING_INIT_TIME_MSEC;
+        execution_or_wait_time = 60;
         max_delay_count = ATCA_POLLING_MAX_TIME_MSEC / ATCA_POLLING_FREQUENCY_TIME_MSEC;
 #endif
 

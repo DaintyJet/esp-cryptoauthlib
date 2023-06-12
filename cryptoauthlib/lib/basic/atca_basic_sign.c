@@ -121,12 +121,12 @@ ATCA_STATUS atcab_sign(uint16_t key_id, const uint8_t *msg, uint8_t *signature)
         }
 
         // Load message into device
-        if (_gDevice->mCommands->dt == ATECC608A)
+        /*if (_gDevice->mCommands->dt == ATECC608A)
         {
             // Use the Message Digest Buffer for the ATECC608A
             nonce_target = NONCE_MODE_TARGET_MSGDIGBUF;
             sign_source = SIGN_MODE_SOURCE_MSGDIGBUF;
-        }
+        }*/
         if ((status = atcab_nonce_load(nonce_target, msg, 32)) != ATCA_SUCCESS)
         {
             break;
