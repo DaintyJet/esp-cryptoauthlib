@@ -3,7 +3,7 @@
  *
  * \brief
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -41,8 +41,8 @@
  *
    @{ */
 
-// The number of bytes to wrap a command in kit protocol.  sizeof("s:t()\n<null>")
-#define KIT_TX_WRAP_SIZE    (7)
+// The number of bytes to wrap a command in kit protocol.  sizeof("d:send()\n<null>")
+#define KIT_TX_WRAP_SIZE    (10)
 
 // The number of bytes to wrap a response in kit protocol.  sizeof("<KIT_MSG_SIZE>00()\n<null>")
 #define KIT_MSG_SIZE        (32)
@@ -52,17 +52,24 @@
 extern "C" {
 #endif
 
-ATCA_STATUS kit_init(ATCAIface iface);
+ATCA_STATUS kit_init(ATCAIface iface, ATCAIfaceCfg* cfg);
+ATCA_STATUS kit_post_init(ATCAIface iface);
+ATCA_STATUS kit_send(ATCAIface iface, uint8_t word_address, uint8_t* txdata, int txlength);
+ATCA_STATUS kit_receive(ATCAIface iface, uint8_t word_address, uint8_t* rxdata, uint16_t* rxsize);
+ATCA_STATUS kit_control(ATCAIface iface, uint8_t option, void* param, size_t paramlen);
+ATCA_STATUS kit_release(void* hal_data);
 
-ATCA_STATUS kit_send(ATCAIface iface, const uint8_t* txdata, int txlength);
-ATCA_STATUS kit_receive(ATCAIface iface, uint8_t* rxdata, uint16_t* rxsize);
-
-ATCA_STATUS kit_wrap_cmd(const uint8_t* txdata, int txlength, char* pkitbuf, int* nkitbuf, char target);
+ATCA_STATUS kit_wrap_cmd(const uint8_t* txdata, int txlength, char* pkitbuf, int* nkitbuf,const char* target);
 ATCA_STATUS kit_parse_rsp(const char* pkitbuf, int nkitbuf, uint8_t* kitstatus, uint8_t* rxdata, int* nrxdata);
 
 ATCA_STATUS kit_wake(ATCAIface iface);
 ATCA_STATUS kit_idle(ATCAIface iface);
 ATCA_STATUS kit_sleep(ATCAIface iface);
+
+
+const char* kit_id_from_devtype(ATCADeviceType devtype);
+const char* kit_interface_from_kittype(ATCAKitType kittype);
+const char * kit_interface(ATCAKitType kittype);
 
 #ifdef __cplusplus
 }

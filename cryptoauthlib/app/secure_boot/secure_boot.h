@@ -3,7 +3,7 @@
  *
  * \brief Provides required APIs to manage secure boot under various scenarios.
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -87,6 +87,3 @@ extern ATCA_STATUS host_generate_random_number(uint8_t *rand);
 #endif
 
 #endif
-
-
-

@@ -33,15 +33,26 @@ menu "esp-cryptoauthlib"
         select MBEDTLS_ATCA_HW_ECDSA_VERIFY
         select MBEDTLS_ECP_DP_SECP256R1_ENABLED
 
-    config ACTA_I2C_SDA_PIN
+    config ATCA_I2C_SDA_PIN
         int "I2C SDA pin used to communicate with the ATECC608A"
         default 27
 
-    config ACTA_I2C_SCL_PIN
+    config ATCA_I2C_SCL_PIN
         int "I2C SCL pin used to communicate with the ATECC608A"
         default 33
 
     config SCAN_FOR_I2C_ADDRESS
         bool "Scan for the ATECC608A I2C address"
+       
+    config ATCA_I2C_ADDRESS
+        hex "I2C device address of the ATECC608A"
+        default 0xC0 if ATECC608A_TCUSTOM
+        default 0x6C if ATECC608A_TFLEX
+        default 0x6A if ATECC608A_TNG
+
+    config ATCA_I2C_BAUD_RATE
+        int "I2C baud rate in Hz"
+        default 100000
+        range 100000 1000000
 
 endmenu # cryptoauthlib

@@ -2,7 +2,7 @@
  * \file
  * \brief Software implementation of the SHA1 algorithm.
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -91,4 +91,3 @@ void CL_hash(U8 *msg, int msgBytes, U8 *dest);
 #endif
 
 #endif // __SHA1_ROUTINES_DOT_H__
-

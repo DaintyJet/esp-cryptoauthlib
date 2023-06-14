@@ -2,7 +2,7 @@
  * \file
  * \brief Utilities to create and verify a JSON Web Token (JWT)
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -26,7 +26,7 @@
  */
 
 #include "cryptoauthlib.h"
-#include "basic/atca_helpers.h"
+#include "atca_helpers.h"
 #include "crypto/atca_crypto_sw_sha2.h"
 #include "jwt/atca_jwt.h"
 #include <stdio.h>
@@ -135,7 +135,7 @@ ATCA_STATUS atca_jwt_finalize(
     }
 
     /* Make sure there is enough remaining buffer given base64 4/3 expansion */
-    rem = (jwt->cur - i + ATCA_SIG_SIZE) * 4;
+    rem = (jwt->cur - i + ATCA_ECCP256_SIG_SIZE) * 4;
     rem /= 3;
 
     /* Increase Count to accomodate: 1 for the '.', 1 for the null terminator,
@@ -172,26 +172,28 @@ ATCA_STATUS atca_jwt_finalize(
     }
 
     /* Create digest of the message store and store in the buffer */
-    status = atcac_sw_sha2_256((const uint8_t*)jwt->buf, jwt->cur, (uint8_t*)(jwt->buf + jwt->buflen - 32));
+    status = (ATCA_STATUS)atcac_sw_sha2_256((const uint8_t*)jwt->buf, jwt->cur, (uint8_t*)(jwt->buf + jwt->buflen - 32));
     if (ATCA_SUCCESS != status)
     {
         return status;
     }
 
     /* Create ECSDA signature of the digest and store it back in the buffer */
-    status = atcab_sign(key_id, (const uint8_t*)(jwt->buf + jwt->buflen - ATCA_SHA_DIGEST_SIZE),
+#if CALIB_SIGN_EN || CALIB_SIGN_ECC204_EN || TALIB_SIGN_EN
+    status = atcab_sign(key_id, (const uint8_t*)(jwt->buf + jwt->buflen - ATCA_SHA256_DIGEST_SIZE),
                         (uint8_t*)(jwt->buf + jwt->buflen - 64));
     if (ATCA_SUCCESS != status)
     {
         return status;
     }
+#endif
 
     /* Add the separator */
     jwt->buf[jwt->cur++] = '.';
 
     /* Encode the signature and store it in the buffer */
     tSize = jwt->buflen - jwt->cur;
-    atcab_base64encode_((const uint8_t*)(jwt->buf + jwt->buflen - ATCA_SIG_SIZE), ATCA_SIG_SIZE,
+    atcab_base64encode_((const uint8_t*)(jwt->buf + jwt->buflen - ATCA_ECCP256_SIG_SIZE), ATCA_ECCP256_SIG_SIZE,
                         &jwt->buf[jwt->cur], &tSize, atcab_b64rules_urlsafe);
     jwt->cur += (uint16_t)tSize;
 
@@ -226,7 +228,7 @@ ATCA_STATUS atca_jwt_add_claim_string(
         atca_jwt_check_payload_start(jwt);
 
         remaining = jwt->buflen - jwt->cur;
-        written = snprintf(&jwt->buf[jwt->cur], remaining, "\"%s\":\"%s\"", claim, value);
+        written = snprintf(&jwt->buf[jwt->cur], (size_t)remaining, "\"%s\":\"%s\"", claim, value);
         if (0 < written && written < remaining)
         {
             jwt->cur += written;
@@ -262,11 +264,11 @@ ATCA_STATUS atca_jwt_add_claim_numeric(
         atca_jwt_check_payload_start(jwt);
 
         remaining = jwt->buflen - jwt->cur;
-        written = snprintf(&jwt->buf[jwt->cur], remaining, "\"%s\":%ld", claim, (long)value);
+        written = snprintf(&jwt->buf[jwt->cur], (size_t)remaining, "\"%s\":%ld", claim, (long)value);
         if (0 < written && written < remaining)
         {
             jwt->cur += written;
-            return 0;
+            return ATCA_SUCCESS;
         }
         else
         {
@@ -279,6 +281,7 @@ ATCA_STATUS atca_jwt_add_claim_numeric(
     }
 }
 
+#if ATCA_HOSTLIB_EN || CALIB_VERIFY_EXTERN_EN || TALIB_VERIFY_EXTERN_EN
 /**
  * \brief Verifies the signature of a jwt using the provided public key
  */
@@ -289,8 +292,8 @@ ATCA_STATUS atca_jwt_verify(
     )
 {
     ATCA_STATUS status = ATCA_GEN_FAIL;
-    uint8_t digest[ATCA_KEY_SIZE];
-    uint8_t signature[ATCA_SIG_SIZE];
+    uint8_t digest[ATCA_SHA256_DIGEST_SIZE];
+    uint8_t signature[ATCA_ECCP256_SIG_SIZE];
     size_t sig_len = sizeof(signature);
     const char* pStr = buf;
 
@@ -325,17 +328,39 @@ ATCA_STATUS atca_jwt_verify(
         }
 
         /* Digest the token */
-        if (ATCA_SUCCESS != (status = atcac_sw_sha2_256((const uint8_t*)buf, pStr - buf - 1, digest)))
+        if (ATCA_SUCCESS != (status = (ATCA_STATUS)atcac_sw_sha2_256((const uint8_t*)buf, (size_t)(pStr - buf - 1), digest)))
         {
             break;
         }
 
+#if CALIB_VERIFY_EXTERN_EN || TALIB_VERIFY_EXTERN_EN
         /* Do a signature verification using the device */
         if (ATCA_SUCCESS != (status = atcab_verify_extern(digest, signature,
                                                           pubkey, &verified)))
         {
             break;
         }
+#elif ATCA_HOSTLIB_EN
+        atcac_pk_ctx pkey_ctx;
+
+        /* Initialize the key using the provided X,Y cordinantes */
+        if(ATCA_SUCCESS != (status = atcac_pk_init(&pkey_ctx, pubkey, 
+                                                   sizeof(pubkey), 0, true)))
+        {
+            break;
+        }
+
+        /* Perform the verification */
+        if(ATCA_SUCCESS == (status = atcac_pk_verify(&pkey_ctx, digest, 
+                                                     sizeof(digest), 
+                                                     signature, sizeof(signature))))
+        {
+            verified = true;
+        }
+
+        /* Make sure to free the key before testing the result of the verify */
+        atcac_pk_free(&pkey_ctx);
+#endif
 
         if (!verified)
         {
@@ -346,3 +371,4 @@ ATCA_STATUS atca_jwt_verify(
 
     return status;
 }
+#endif

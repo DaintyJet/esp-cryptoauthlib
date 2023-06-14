@@ -2,7 +2,7 @@
  * \file
  * \brief a set of default configurations for various ATCA devices and interfaces
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -26,6 +26,7 @@
  */
 
 #include <stddef.h>
+#include "cryptoauthlib.h"
 #include "atca_cfgs.h"
 #include "atca_iface.h"
 #include "atca_device.h"
@@ -36,35 +37,47 @@
 
 /* if the number of these configurations grows large, we can #ifdef them based on required device support */
 
+#if defined(ATCA_ECC_SUPPORT) && defined(ATCA_HAL_I2C)
 /** \brief default configuration for an ECCx08A device */
 ATCAIfaceCfg cfg_ateccx08a_i2c_default = {
     .iface_type                 = ATCA_I2C_IFACE,
-    .devtype                    = ATECC608A,
+    .devtype                    = ATECC608,
     {
+#ifdef ATCA_ENABLE_DEPRECATED
         .atcai2c.slave_address  = 0xC0,
+#else
+        .atcai2c.address        = 0xC0,
+#endif
         .atcai2c.bus            = 2,
+#ifdef __linux__
+        .atcai2c.baud           = 100000,
+#else
         .atcai2c.baud           = 400000,
-        //.atcai2c.baud = 100000,
+#endif
     },
     .wake_delay                 = 1500,
     .rx_retries                 = 20
 };
+#endif
 
+#if defined(ATCA_ECC_SUPPORT) && defined(ATCA_HAL_SWI)
 /** \brief default configuration for an ECCx08A device on the logical SWI bus over UART*/
 ATCAIfaceCfg cfg_ateccx08a_swi_default = {
     .iface_type         = ATCA_SWI_IFACE,
-    .devtype            = ATECC608A,
+    .devtype            = ATECC608,
     {
         .atcaswi.bus    = 4,
     },
     .wake_delay         = 1500,
     .rx_retries         = 10
 };
+#endif
 
+#if defined(ATCA_ECC_SUPPORT) && defined(ATCA_HAL_KIT_UART)
 /** \brief default configuration for Kit protocol over the device's async interface */
-ATCAIfaceCfg cfg_ateccx08a_kitcdc_default = {
+ATCAIfaceCfg cfg_ateccx08_kituart_default = {
     .iface_type             = ATCA_UART_IFACE,
-    .devtype                = ATECC608A,
+    .devtype                = ATECC608,
     {
         .atcauart.port      = 0,
         .atcauart.baud      = 115200,
@@ -74,11 +87,13 @@ ATCAIfaceCfg cfg_ateccx08a_kitcdc_default = {
     },
     .rx_retries             = 1,
 };
+#endif
 
+#if defined(ATCA_ECC_SUPPORT) && defined(ATCA_HAL_KIT_HID)
 /** \brief default configuration for Kit protocol over the device's async interface */
 ATCAIfaceCfg cfg_ateccx08a_kithid_default = {
     .iface_type                  = ATCA_HID_IFACE,
-    .devtype                     = ATECC608A,
+    .devtype                     = ATECC608,
     {
         .atcahid.dev_interface   = ATCA_KIT_AUTO_IFACE,
         .atcahid.dev_identity    = 0,
@@ -88,23 +103,34 @@ ATCAIfaceCfg cfg_ateccx08a_kithid_default = {
         .atcahid.packetsize      = 64,
     }
 };
+#endif
 
-
+#if defined(ATCA_SHA_SUPPORT) && defined(ATCA_HAL_I2C)
 /** \brief default configuration for a SHA204A device on the first logical I2C bus */
-ATCAIfaceCfg cfg_atsha204a_i2c_default = {
+ATCAIfaceCfg cfg_atsha20xa_i2c_default = {
     .iface_type                 = ATCA_I2C_IFACE,
     .devtype                    = ATSHA204A,
     {
+#ifdef ATCA_ENABLE_DEPRECATED
         .atcai2c.slave_address  = 0xC8,
+#else
+        .atcai2c.address        = 0xC8,
+#endif
         .atcai2c.bus            = 2,
+#ifdef __linux__
+        .atcai2c.baud           = 100000,
+#else
         .atcai2c.baud           = 400000,
+#endif
     },
     .wake_delay                 = 2560,
     .rx_retries                 = 20
 };
+#endif
 
-/** \brief default configuration for an SHA204A device on the logical SWI bus over UART*/
-ATCAIfaceCfg cfg_atsha204a_swi_default = {
+#if defined(ATCA_SHA_SUPPORT) && defined(ATCA_HAL_SWI)
+/** \brief default configuration for an SHA20xA device on the logical SWI bus over UART*/
+ATCAIfaceCfg cfg_atsha20xa_swi_default = {
     .iface_type       = ATCA_SWI_IFACE,
     .devtype          = ATSHA204A,
     {
@@ -113,9 +139,11 @@ ATCAIfaceCfg cfg_atsha204a_swi_default = {
     .wake_delay       = 2560,
     .rx_retries       = 10
 };
+#endif
 
+#if defined(ATCA_SHA_SUPPORT) && defined(ATCA_HAL_KIT_UART)
 /** \brief default configuration for Kit protocol over the device's async interface */
-ATCAIfaceCfg cfg_atsha204a_kitcdc_default = {
+ATCAIfaceCfg cfg_atsha20xa_kituart_default = {
     .iface_type            = ATCA_UART_IFACE,
     .devtype               = ATSHA204A,
     {
@@ -127,17 +155,129 @@ ATCAIfaceCfg cfg_atsha204a_kitcdc_default = {
     },
     .rx_retries            = 1,
 };
+#endif
 
+#if defined(ATCA_SHA_SUPPORT) && defined(ATCA_HAL_KIT_HID)
 /** \brief default configuration for Kit protocol over the device's async interface */
-ATCAIfaceCfg cfg_atsha204a_kithid_default = {
+ATCAIfaceCfg cfg_atsha20xa_kithid_default = {
     .iface_type            = ATCA_HID_IFACE,
     .devtype               = ATSHA204A,
-    .atcahid.dev_interface = ATCA_KIT_AUTO_IFACE,
-    .atcahid.dev_identity  = 0,
-    .atcahid.idx           = 0,
-    .atcahid.vid           = 0x03EB,
-    .atcahid.pid           = 0x2312,
-    .atcahid.packetsize    = 64,
+    {
+        .atcahid.dev_interface = ATCA_KIT_AUTO_IFACE,
+        .atcahid.dev_identity  = 0,
+        .atcahid.idx           = 0,
+        .atcahid.vid           = 0x03EB,
+        .atcahid.pid           = 0x2312,
+        .atcahid.packetsize    = 64,
+    },
+    .rx_retries                = 1
 };
+#endif
+
+#if defined(ATCA_ECC204_SUPPORT) && defined(ATCA_HAL_I2C)
+/** \brief default configuration for an ECC204 device on the first logical I2C bus */
+ATCAIfaceCfg cfg_ecc204_i2c_default = {
+    .iface_type                 = ATCA_I2C_IFACE,
+    .devtype                    = ECC204,
+    {
+#ifdef ATCA_ENABLE_DEPRECATED
+        .atcai2c.slave_address  = 0x33,
+#else
+        .atcai2c.address        = 0x33,
+#endif
+        .atcai2c.bus            = 2,
+#ifdef __linux__
+        .atcai2c.baud           = 100000,
+#else
+        .atcai2c.baud           = 400000,
+#endif
+    },
+    .wake_delay                 = 1500,
+    .rx_retries                 = 20
+};
+#endif
+
+#if defined(ATCA_ECC204_SUPPORT) && defined(ATCA_HAL_SWI)
+/** \brief default configuration for an ECC204 device on the logical SWI over GPIO*/
+ATCAIfaceCfg cfg_ecc204_swi_default = {
+    .iface_type         = ATCA_SWI_GPIO_IFACE,
+    .devtype            = ECC204,
+    {
+        .atcaswi.bus    = 4,
+    },
+    .wake_delay         = 1500,
+    .rx_retries         = 10
+};
+#endif
+
+#if defined(ATCA_ECC204_SUPPORT) && defined(ATCA_HAL_KIT_HID)
+/** \brief default configuration for Kit protocol over the device's async interface */
+ATCAIfaceCfg cfg_ecc204_kithid_default = {
+    .iface_type                  = ATCA_HID_IFACE,
+    .devtype                     = ECC204,
+    {
+        .atcahid.dev_interface   = ATCA_KIT_AUTO_IFACE,
+        .atcahid.dev_identity    = 0,
+        .atcahid.idx             = 0,
+        .atcahid.vid             = 0x03EB,
+        .atcahid.pid             = 0x2312,
+        .atcahid.packetsize      = 64,
+    }
+};
+#endif
+
+#if defined(ATCA_TA010_SUPPORT) && defined(ATCA_HAL_I2C)
+/** \brief default configuration for an ECC204 device on the first logical I2C bus */
+ATCAIfaceCfg cfg_ta010_i2c_default = {
+    .iface_type                 = ATCA_I2C_IFACE,
+    .devtype                    = TA010,
+    {
+#ifdef ATCA_ENABLE_DEPRECATED
+        .atcai2c.slave_address  = 0x33,
+#else
+        .atcai2c.address        = 0x33,
+#endif
+        .atcai2c.bus            = 2,
+#ifdef __linux__
+        .atcai2c.baud           = 100000,
+#else
+        .atcai2c.baud           = 400000,
+#endif
+    },
+    .wake_delay                 = 1500,
+    .rx_retries                 = 20
+};
+#endif
+
+#if defined(ATCA_TA010_SUPPORT) && defined(ATCA_HAL_SWI)
+/** \brief default configuration for an ECC204 device on the logical SWI over GPIO*/
+ATCAIfaceCfg cfg_ta010_swi_default = {
+    .iface_type         = ATCA_SWI_GPIO_IFACE,
+    .devtype            = TA010,
+    {
+        .atcaswi.bus    = 4,
+    },
+    .wake_delay         = 1500,
+    .rx_retries         = 10
+};
+#endif
+
+#if defined(ATCA_TA010_SUPPORT) && defined(ATCA_HAL_KIT_HID)
+/** \brief default configuration for Kit protocol over the device's async interface */
+ATCAIfaceCfg cfg_ta010_kithid_default = {
+    .iface_type                  = ATCA_HID_IFACE,
+    .devtype                     = TA010,
+    {
+        .atcahid.dev_interface   = ATCA_KIT_AUTO_IFACE,
+        .atcahid.dev_identity    = 0,
+        .atcahid.idx             = 0,
+        .atcahid.vid             = 0x03EB,
+        .atcahid.pid             = 0x2312,
+        .atcahid.packetsize      = 64,
+    }
+};
+#endif
+
+
 
 /** @} */

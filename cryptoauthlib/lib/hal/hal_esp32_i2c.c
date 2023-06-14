@@ -16,12 +16,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <driver/i2c.h>
-#include "hal/atca_hal.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "cryptoauthlib.h"
 
-#define SDA_PIN                            CONFIG_ACTA_I2C_SDA_PIN
-#define SCL_PIN                            CONFIG_ACTA_I2C_SCL_PIN
+#define I2C0_SDA_PIN                       16
+#define I2C0_SCL_PIN                       17
+#define I2C1_SDA_PIN                       21
+#define I2C1_SCL_PIN                       22
 #define ACK_CHECK_EN                       0x1              /*!< I2C master will check ack from slave*/
 #define ACK_CHECK_DIS                      0x0              /*!< I2C master will not check ack from slave */
 #define ACK_VAL                            0x0              /*!< I2C ack value */
@@ -35,112 +37,146 @@
 
 typedef struct atcaI2Cmaster
 {
-    int id;
-    int ref_ct;
-    int bus_index;
+    int          id;
+    i2c_config_t conf;
+    int          ref_ct;
 } ATCAI2CMaster_t;
 
-ATCAI2CMaster_t *i2c_hal_data[MAX_I2C_BUSES];
-int i2c_bus_ref_ct = 0;
-i2c_config_t conf;
+ATCAI2CMaster_t i2c_hal_data[MAX_I2C_BUSES];
 
 const char* TAG = "HAL_I2C";
 
-void hal_i2c_change_baud(ATCAIface iface, uint32_t speed)
+ATCA_STATUS status;
+
+/** \brief method to change the bus speec of I2C
+ * \param[in] iface  interface on which to change bus speed
+ * \param[in] speed  baud rate (typically 100000 or 400000)
+ */
+ATCA_STATUS hal_i2c_change_baud(ATCAIface iface, uint32_t speed)
 {
     esp_err_t rc;
     ATCAIfaceCfg *cfg = atgetifacecfg(iface);
     int bus = cfg->atcai2c.bus;
 
-    conf.master.clk_speed = speed;
-    rc = i2c_param_config(i2c_hal_data[bus]->id, &conf);
+    i2c_hal_data[bus].conf.master.clk_speed = speed;
+
+    rc = i2c_param_config(i2c_hal_data[bus].id, &i2c_hal_data[bus].conf);
     if (rc == ESP_OK)
     {
-//        ESP_LOGD(TAG, "Baudrate Changed");
+        //ESP_LOGD(TAG, "Baudrate Changed");
+        return ATCA_SUCCESS;
     }
     else
     {
-//        ESP_LOGW(TAG, "Baudrate Change Failed");
+        //ESP_LOGW(TAG, "Baudrate Change Failed");
+        return ATCA_COMM_FAIL;
     }
 }
 
-ATCA_STATUS hal_i2c_init(void *hal, ATCAIfaceCfg *cfg)
+/** \brief
+    - this HAL implementation assumes you've included the START Twi libraries in your project, otherwise,
+    the HAL layer will not compile because the START TWI drivers are a dependency *
+ */
+
+/** \brief hal_i2c_init manages requests to initialize a physical interface.  it manages use counts so when an interface
+ * has released the physical layer, it will disable the interface for some other use.
+ * You can have multiple ATCAIFace instances using the same bus, and you can have multiple ATCAIFace instances on
+ * multiple i2c buses, so hal_i2c_init manages these things and ATCAIFace is abstracted from the physical details.
+ */
+
+/** \brief initialize an I2C interface using given config
+ * \param[in] hal - opaque ptr to HAL data
+ * \param[in] cfg - interface configuration
+ * \return ATCA_SUCCESS on success, otherwise an error code.
+ */
+ATCA_STATUS hal_i2c_init(ATCAIface iface, ATCAIfaceCfg *cfg)
 {
-    esp_err_t rc;
+    esp_err_t rc = ESP_FAIL;
     int bus = cfg->atcai2c.bus;
-    ATCAHAL_t *phal = (ATCAHAL_t*)hal;
-
-    if (i2c_bus_ref_ct == 0)
-    {
-        for (int i = 0; i < MAX_I2C_BUSES; i++)
-        {
-            i2c_hal_data[i] = NULL;
-        }
-    }
-
-    i2c_bus_ref_ct++;
 
     if (bus >= 0 && bus < MAX_I2C_BUSES)
     {
-        if (i2c_hal_data[bus] == NULL)
+        if (0 == i2c_hal_data[bus].ref_ct)
         {
-            i2c_hal_data[bus] = malloc(sizeof(ATCAI2CMaster_t));
-            i2c_hal_data[bus]->ref_ct = 1;
+            i2c_hal_data[bus].ref_ct = 1;
+            i2c_hal_data[bus].conf.mode = I2C_MODE_MASTER;
+            i2c_hal_data[bus].conf.sda_pullup_en = GPIO_PULLUP_DISABLE;
+            i2c_hal_data[bus].conf.scl_pullup_en = GPIO_PULLUP_DISABLE;
+            i2c_hal_data[bus].conf.master.clk_speed = 100000; //cfg->atcai2c.baud;
 
             switch (bus)
             {
             case 0:
-                i2c_hal_data[bus]->id = I2C_NUM_0;
+                i2c_hal_data[bus].id = I2C_NUM_0;
+                i2c_hal_data[bus].conf.sda_io_num = I2C0_SDA_PIN;
+                i2c_hal_data[bus].conf.scl_io_num = I2C0_SCL_PIN;
                 break;
             case 1:
-                i2c_hal_data[bus]->id = I2C_NUM_1;
+                i2c_hal_data[bus].id = I2C_NUM_1;
+                i2c_hal_data[bus].conf.sda_io_num = I2C1_SDA_PIN;
+                i2c_hal_data[bus].conf.scl_io_num = I2C1_SCL_PIN;
+                break;
+            default:
                 break;
             }
 
-            conf.mode = I2C_MODE_MASTER;
-            conf.sda_io_num = SDA_PIN;
-            conf.scl_io_num = SCL_PIN;
-            conf.sda_pullup_en = GPIO_PULLUP_DISABLE;
-            conf.scl_pullup_en = GPIO_PULLUP_DISABLE;
-            conf.master.clk_speed = 100000; //cfg->atcai2c.baud;
 //            ESP_LOGI(TAG, "Configuring I2C");
-            rc = i2c_param_config(i2c_hal_data[bus]->id, &conf);
+            rc = i2c_param_config(i2c_hal_data[bus].id, &i2c_hal_data[bus].conf);
 //            ESP_LOGD(TAG, "I2C Param Config: %s", esp_err_to_name(rc));
-            rc = i2c_driver_install(i2c_hal_data[bus]->id, I2C_MODE_MASTER, 0, 0, 0);
+            rc = i2c_driver_install(i2c_hal_data[bus].id, I2C_MODE_MASTER, 0, 0, 0);
 //            ESP_LOGD(TAG, "I2C Driver Install; %s", esp_err_to_name(rc));
-            i2c_hal_data[bus]->bus_index = bus;
         }
         else
         {
-            i2c_hal_data[bus]->ref_ct++;
+            i2c_hal_data[bus].ref_ct++;
         }
 
-        phal->hal_data = i2c_hal_data[bus];
+        iface->hal_data = &i2c_hal_data[bus];
+    }
 
+    if (ESP_OK == rc)
+    {
         return ATCA_SUCCESS;
     }
-//    ESP_LOGE(TAG, "I2C init failed");
-    return ATCA_COMM_FAIL;
+    else
+    {
+        //ESP_LOGE(TAG, "I2C init failed");
+        return ATCA_COMM_FAIL;
+    }
 }
 
+/** \brief HAL implementation of I2C post init
+ * \param[in] iface  instance
+ * \return ATCA_SUCCESS
+ */
 ATCA_STATUS hal_i2c_post_init(ATCAIface iface)
 {
     return ATCA_SUCCESS;
 }
 
-ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
+/** \brief HAL implementation of I2C send
+ * \param[in] iface         instance
+ * \param[in] word_address  device transaction type
+ * \param[in] txdata        pointer to space to bytes to send
+ * \param[in] txlength      number of bytes to send
+ * \return ATCA_SUCCESS on success, otherwise an error code.
+ */
+ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t address, uint8_t *txdata, int txlength)
 {
     ATCAIfaceCfg *cfg = iface->mIfaceCFG;
     esp_err_t rc;
 
-    txdata[0] = 0x03;              //Word Address value, Command Token as per datasheet of ATECC508A
-    txlength++;
-//    ESP_LOGD(TAG, "txdata: %p , txlength: %d", txdata, txlength);
-//    ESP_LOG_BUFFER_HEXDUMP(TAG, txdata, txlength, 3);
+    if (!cfg)
+    {
+        return ATCA_BAD_PARAM;
+    }
+
+    //ESP_LOGD(TAG, "txdata: %p , txlength: %d", txdata, txlength);
+    //ESP_LOG_BUFFER_HEXDUMP(TAG, txdata, txlength, 3);
 
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     (void)i2c_master_start(cmd);
-    (void)i2c_master_write_byte(cmd, cfg->atcai2c.slave_address | I2C_MASTER_WRITE, ACK_CHECK_EN);
+    (void)i2c_master_write_byte(cmd, address | I2C_MASTER_WRITE, ACK_CHECK_EN);
     (void)i2c_master_write(cmd, txdata, txlength, ACK_CHECK_EN);
     (void)i2c_master_stop(cmd);
     rc = i2c_master_cmd_begin(cfg->atcai2c.bus, cmd, 10);
@@ -156,156 +192,86 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
     }
 }
 
-ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength)
+/** \brief HAL implementation of I2C receive function
+ * \param[in]    iface          Device to interact with.
+ * \param[in]    address        Device address
+ * \param[out]   rxdata         Data received will be returned here.
+ * \param[in,out] rxlength      As input, the size of the rxdata buffer.
+ *                              As output, the number of bytes received.
+ * \return ATCA_SUCCESS on success, otherwise an error code.
+ */
+ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t address, uint8_t *rxdata, uint16_t *rxlength)
 {
     ATCAIfaceCfg *cfg = iface->mIfaceCFG;
     esp_err_t rc;
     i2c_cmd_handle_t cmd;
-    int high = 0;
-    int low = 0;
+    ATCA_STATUS status = ATCA_COMM_FAIL;
+
+    if ((NULL == cfg) || (NULL == rxlength) || (NULL == rxdata))
+    {
+        return ATCA_TRACE(ATCA_INVALID_POINTER, "NULL pointer encountered");
+    }
 
     cmd = i2c_cmd_link_create();
     (void)i2c_master_start(cmd);
-    (void)i2c_master_write_byte(cmd, cfg->atcai2c.slave_address | I2C_MASTER_READ, ACK_CHECK_EN);
-    (void)i2c_master_read_byte(cmd, rxdata, ACK_VAL);
+    (void)i2c_master_write_byte(cmd, address | I2C_MASTER_READ, ACK_CHECK_EN);
+    if (*rxlength > 1)
+    {
+        (void)i2c_master_read(cmd, rxdata, *rxlength - 1, ACK_VAL);
+    }
+    (void)i2c_master_read_byte(cmd, rxdata + (size_t)*rxlength - 1, NACK_VAL);
+    (void)i2c_master_stop(cmd);
     rc = i2c_master_cmd_begin(cfg->atcai2c.bus, cmd, 10);
     (void)i2c_cmd_link_delete(cmd);
 
-    if (ESP_OK != rc)
+    //ESP_LOG_BUFFER_HEXDUMP(TAG, rxdata, *rxlength, 3);
+
+    if (ESP_OK == rc)
     {
-        return ATCA_COMM_FAIL;
+        status = ATCA_SUCCESS;
     }
 
-    *rxlength = rxdata[0];
+    return status;
 
-    if (*rxlength > 1)
-    {
-        cmd = i2c_cmd_link_create();
-        if (*rxlength > 2)
-        {
-            (void)i2c_master_read(cmd, &rxdata[1], (*rxlength) - 2, ACK_VAL);
-        }
-        (void)i2c_master_read_byte(cmd, rxdata + (*rxlength) - 1, NACK_VAL);
-        (void)i2c_master_stop(cmd);
-        rc = i2c_master_cmd_begin(cfg->atcai2c.bus, cmd, 10);
-        (void)i2c_cmd_link_delete(cmd);
-    }
-    else
-    {
-        cmd = i2c_cmd_link_create();
-        (void)i2c_master_stop(cmd);
-        rc = i2c_master_cmd_begin(cfg->atcai2c.bus, cmd, 10);
-        (void)i2c_cmd_link_delete(cmd);
-    }
-
-//    ESP_LOG_BUFFER_HEX(TAG, rxdata, *rxlength);
-
-    if (ESP_OK != rc)
-    {
-        return ATCA_COMM_FAIL;
-    }
-    else
-    {
-        return ATCA_SUCCESS;
-    }
 }
 
+/** \brief manages reference count on given bus and releases resource if no more refences exist
+ * \param[in] hal_data - opaque pointer to hal data structure - known only to the HAL implementation
+ * \return ATCA_SUCCESS on success, otherwise an error code.
+ */
 ATCA_STATUS hal_i2c_release(void *hal_data)
 {
     ATCAI2CMaster_t *hal = (ATCAI2CMaster_t*)hal_data;
 
-    i2c_bus_ref_ct--;
-    if (hal && --(hal->ref_ct) <= 0 && i2c_hal_data[hal->bus_index] != NULL)
+    if (hal && --(hal->ref_ct) <= 0)
     {
-        i2c_driver_delete(hal->bus_index);
-        free(i2c_hal_data[hal->bus_index]);
-        i2c_hal_data[hal->bus_index] = NULL;
+        i2c_driver_delete(hal->id);
     }
     return ATCA_SUCCESS;
 }
 
-ATCA_STATUS hal_i2c_wake(ATCAIface iface)
+/** \brief Perform control operations for the kit protocol
+ * \param[in]     iface          Interface to interact with.
+ * \param[in]     option         Control parameter identifier
+ * \param[in]     param          Optional pointer to parameter value
+ * \param[in]     paramlen       Length of the parameter
+ * \return ATCA_SUCCESS on success, otherwise an error code.
+ */
+ATCA_STATUS hal_i2c_control(ATCAIface iface, uint8_t option, void* param, size_t paramlen)
 {
-    ATCAIfaceCfg *cfg = atgetifacecfg(iface);
-//    uint32_t bdrt = cfg->atcai2c.baud;
-    uint16_t rxlen;
-    uint8_t data[4] = { 0 };
-    const uint8_t expected[4] = { 0x04, 0x11, 0x33, 0x43 };
+    (void)param;
+    (void)paramlen;
 
-//    if (bdrt != 100000) {
-//        hal_i2c_change_baud(iface, 100000);
-//    }
-
-    // 0x00 as wake up pulse
-    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-
-    (void)i2c_master_start(cmd);
-    (void)i2c_master_write_byte(cmd, I2C_MASTER_WRITE, ACK_CHECK_DIS);
-    (void)i2c_master_stop(cmd);
-    (void)i2c_master_cmd_begin(cfg->atcai2c.bus, cmd, 10);
-    (void)i2c_cmd_link_delete(cmd);
-
-    atca_delay_ms(10);   // wait tWHI + tWLO which is configured based on device type and configuration structure
-
-//    if (bdrt != 100000)
-//    {
-//        hal_i2c_change_baud(iface, cfg->atcai2c.baud);
-//    }
-
-    rxlen = 4;
-    hal_i2c_receive(iface, data, &rxlen);
-    if (memcmp(data, expected, 4) == 0)
+    if (iface && iface->mIfaceCFG)
     {
-//        ESP_LOGI(TAG, "I2C wake successful");
-        return ATCA_SUCCESS;
+        if (ATCA_HAL_CHANGE_BAUD == option)
+        {
+            return hal_i2c_change_baud(iface, *(uint32_t*)param);
+        }
+        else
+        {
+            return ATCA_UNIMPLEMENTED;
+        }
     }
-//    ESP_LOGW(TAG, "I2C wake failed");
-    return ATCA_COMM_FAIL;
+    return ATCA_BAD_PARAM;
 }
-
-ATCA_STATUS hal_i2c_idle(ATCAIface iface)
-{
-    ATCAIfaceCfg *cfg = atgetifacecfg(iface);
-    uint8_t idle_data = 0x02;
-    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-
-    (void)i2c_master_start(cmd);
-    (void)i2c_master_write_byte(cmd, cfg->atcai2c.slave_address | I2C_MASTER_WRITE, ACK_CHECK_EN);
-    (void)i2c_master_write(cmd, &idle_data, 1, ACK_CHECK_DIS);
-    (void)i2c_master_stop(cmd);
-    (void)i2c_master_cmd_begin(cfg->atcai2c.bus, cmd, 10);
-    (void)i2c_cmd_link_delete(cmd);
-//    ESP_LOGI(TAG, "IDLE Command Sent");
-    return ATCA_SUCCESS;
-}
-
-ATCA_STATUS hal_i2c_sleep(ATCAIface iface)
-{
-    ATCAIfaceCfg *cfg = atgetifacecfg(iface);
-    uint8_t sleep_data = 0x01;
-
-    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-
-    (void)i2c_master_start(cmd);
-    (void)i2c_master_write_byte(cmd, cfg->atcai2c.slave_address | I2C_MASTER_WRITE, ACK_CHECK_EN);
-    (void)i2c_master_write(cmd, &sleep_data, 1, ACK_CHECK_DIS);
-    (void)i2c_master_stop(cmd);
-    (void)i2c_master_cmd_begin(cfg->atcai2c.bus, cmd, 10);
-    (void)i2c_cmd_link_delete(cmd);
-//    ESP_LOGI(TAG, "hal_i2c_sleep");
-
-    return ATCA_SUCCESS;
-}
-
-ATCA_STATUS hal_i2c_discover_buses(int i2c_buses[], int max_buses)
-{
-//    ESP_LOGI(TAG, "hal_i2c_discover_buses");
-    return ATCA_UNIMPLEMENTED;
-}
-
-ATCA_STATUS hal_i2c_discover_devices(int bus_num, ATCAIfaceCfg *cfg, int *found)
-{
-//    ESP_LOGI(TAG, "hal_i2c_discover_devices");
-    return ATCA_UNIMPLEMENTED;
-}
-

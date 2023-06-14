@@ -4,7 +4,7 @@
  *
  * These are common definitions used by all the atcacert code.
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -32,6 +32,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+
+#include "atcacert_check_config.h"
 
 /** \defgroup atcacert_ Certificate manipulation methods (atcacert_)
  *

@@ -3,7 +3,7 @@
  *
  * \brief Provides interface to memory component for the secure boot.
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -59,6 +59,3 @@ extern bool secure_boot_check_full_copy_completion(void);
 #endif
 
 #endif
-
-
-
