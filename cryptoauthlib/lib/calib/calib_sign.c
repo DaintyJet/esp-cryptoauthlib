@@ -126,9 +126,8 @@ ATCA_STATUS calib_sign(ATCADevice device, uint16_t key_id, const uint8_t *msg, u
         }
 #endif
 #ifdef ATCA_ATECC608_SUPPORT
-        // Load message into device
-        /* We do not have a message buffer
-        if (ATECC608 == device->mIface.mIfaceCFG->devtype)
+        // Load message into device WE do not have a device buffer
+      /*  if (ATECC608 == device->mIface.mIfaceCFG->devtype)
         {
             // Use the Message Digest Buffer for the ATECC608
             nonce_target = NONCE_MODE_TARGET_MSGDIGBUF;

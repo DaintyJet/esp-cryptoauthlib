@@ -43,186 +43,186 @@
 // *INDENT-OFF* - Preserve time formatting from the code formatter
 /*Execution times for ATSHA204A supported commands...*/
 static const device_execution_time_t device_execution_time_204[] = {
-    { ATCA_CHECKMAC,     38},
-    { ATCA_DERIVE_KEY,   62},
-    { ATCA_GENDIG,       43},
-    { ATCA_HMAC,         69},
-    { ATCA_INFO,         2},
-    { ATCA_LOCK,         24},
-    { ATCA_MAC,          35},
-    { ATCA_NONCE,        60},
-    { ATCA_PAUSE,        2},
-    { ATCA_RANDOM,       50},
-    { ATCA_READ,         5},
-    { ATCA_SHA,          22},
-    { ATCA_UPDATE_EXTRA, 12},
-    { ATCA_WRITE,        42}
+    { ATCA_CHECKMAC,     1138},
+    { ATCA_DERIVE_KEY,   1162},
+    { ATCA_GENDIG,       1143},
+    { ATCA_HMAC,         1169},
+    { ATCA_INFO,         112},
+    { ATCA_LOCK,         11124},
+    { ATCA_MAC,          1135},
+    { ATCA_NONCE,        1160},
+    { ATCA_PAUSE,        112},
+    { ATCA_RANDOM,       1150},
+    { ATCA_READ,         115},
+    { ATCA_SHA,          1122},
+    { ATCA_UPDATE_EXTRA, 1112},
+    { ATCA_WRITE,        1142}
 };
 
 /*Execution times for ATSHA206A supported commands...*/
 static const device_execution_time_t device_execution_time_206[] = {
-    { ATCA_DERIVE_KEY,   62},
-    { ATCA_INFO,         2},
-    { ATCA_MAC,          35},
-    { ATCA_READ,         5},
-    { ATCA_WRITE,        42}
+    { ATCA_DERIVE_KEY,   1162},
+    { ATCA_INFO,         112},
+    { ATCA_MAC,          1135},
+    { ATCA_READ,         115},
+    { ATCA_WRITE,        1142}
 };
 
 /*Execution times for ATECC108A supported commands...*/
 static const device_execution_time_t device_execution_time_108[] = {
-    { ATCA_CHECKMAC,     13},
-    { ATCA_COUNTER,      20},
-    { ATCA_DERIVE_KEY,   50},
-    { ATCA_GENDIG,       11},
-    { ATCA_GENKEY,       115},
-    { ATCA_HMAC,         23},
-    { ATCA_INFO,         2},
-    { ATCA_LOCK,         32},
-    { ATCA_MAC,          14},
-    { ATCA_NONCE,        29},
-    { ATCA_PAUSE,        3},
-    { ATCA_PRIVWRITE,    48},
-    { ATCA_RANDOM,       23},
-    { ATCA_READ,         5},
-    { ATCA_SHA,          9},
-    { ATCA_SIGN,         60},
-    { ATCA_UPDATE_EXTRA, 10},
-    { ATCA_VERIFY,       72},
-    { ATCA_WRITE,        26}
+    { ATCA_CHECKMAC,     1113},
+    { ATCA_COUNTER,      1120},
+    { ATCA_DERIVE_KEY,   1150},
+    { ATCA_GENDIG,       1111},
+    { ATCA_GENKEY,       1115},
+    { ATCA_HMAC,         1123},
+    { ATCA_INFO,         112},
+    { ATCA_LOCK,         11132},
+    { ATCA_MAC,          1114},
+    { ATCA_NONCE,        1129},
+    { ATCA_PAUSE,        113},
+    { ATCA_PRIVWRITE,    1148},
+    { ATCA_RANDOM,       1123},
+    { ATCA_READ,         115},
+    { ATCA_SHA,          119},
+    { ATCA_SIGN,         1160},
+    { ATCA_UPDATE_EXTRA, 1110},
+    { ATCA_VERIFY,       1172},
+    { ATCA_WRITE,        1126}
 };
 
 /*Execution times for ATECC508A supported commands...*/
 static const device_execution_time_t device_execution_time_508[] = {
-    { ATCA_CHECKMAC,     13},
-    { ATCA_COUNTER,      20},
-    { ATCA_DERIVE_KEY,   50},
-    { ATCA_ECDH,         58},
-    { ATCA_GENDIG,       11},
-    { ATCA_GENKEY,       115},
-    { ATCA_HMAC,         23},
-    { ATCA_INFO,         2},
-    { ATCA_LOCK,         32},
-    { ATCA_MAC,          14},
-    { ATCA_NONCE,        29},
-    { ATCA_PAUSE,        3},
-    { ATCA_PRIVWRITE,    48},
-    { ATCA_RANDOM,       23},
-    { ATCA_READ,         5},
-    { ATCA_SHA,          9},
-    { ATCA_SIGN,         60},
-    { ATCA_UPDATE_EXTRA, 10},
-    { ATCA_VERIFY,       72},
-    { ATCA_WRITE,        26}
+    { ATCA_CHECKMAC,     1113},
+    { ATCA_COUNTER,      1120},
+    { ATCA_DERIVE_KEY,   1150},
+    { ATCA_ECDH,         1158},
+    { ATCA_GENDIG,       1111},
+    { ATCA_GENKEY,       11115},
+    { ATCA_HMAC,         1123},
+    { ATCA_INFO,         112},
+    { ATCA_LOCK,         11132},
+    { ATCA_MAC,          1114},
+    { ATCA_NONCE,        1129},
+    { ATCA_PAUSE,        113},
+    { ATCA_PRIVWRITE,    1148},
+    { ATCA_RANDOM,       1123},
+    { ATCA_READ,         115},
+    { ATCA_SHA,          119},
+    { ATCA_SIGN,         1160},
+    { ATCA_UPDATE_EXTRA, 1110},
+    { ATCA_VERIFY,       1172},
+    { ATCA_WRITE,        1126}
 };
 
 /*Execution times for ATECC608-M0 supported commands...*/
 static const device_execution_time_t device_execution_time_608_m0[] = {
-    { ATCA_AES,          27},
-    { ATCA_CHECKMAC,     40},
-    { ATCA_COUNTER,      25},
-    { ATCA_DERIVE_KEY,   50},
-    { ATCA_ECDH,         75},
-    { ATCA_GENDIG,       25},
-    { ATCA_GENKEY,       115},
-    { ATCA_INFO,         5},
-    { ATCA_KDF,          165},
-    { ATCA_LOCK,         35},
-    { ATCA_MAC,          55},
-    { ATCA_NONCE,        20},
-    { ATCA_PRIVWRITE,    50},
-    { ATCA_RANDOM,       23},
-    { ATCA_READ,         5},
-    { ATCA_SECUREBOOT,   80},
-    { ATCA_SELFTEST,     250},
-    { ATCA_SHA,          36},
-    { ATCA_SIGN,         115},
-    { ATCA_UPDATE_EXTRA, 10},
-    { ATCA_VERIFY,       105},
-    { ATCA_WRITE,        45}
+    { ATCA_AES,          181},
+    { ATCA_CHECKMAC,     1120},
+    { ATCA_COUNTER,      175},
+    { ATCA_DERIVE_KEY,   1150},
+    { ATCA_ECDH,         1225},
+    { ATCA_GENDIG,       175},
+    { ATCA_GENKEY,       1345},
+    { ATCA_INFO,         115},
+    { ATCA_KDF,          1495},
+    { ATCA_LOCK,         11105},
+    { ATCA_MAC,          1165},
+    { ATCA_NONCE,        160},
+    { ATCA_PRIVWRITE,    1150},
+    { ATCA_RANDOM,       169},
+    { ATCA_READ,         115},
+    { ATCA_SECUREBOOT,   1240},
+    { ATCA_SELFTEST,     1750},
+    { ATCA_SHA,          1108},
+    { ATCA_SIGN,         1345},
+    { ATCA_UPDATE_EXTRA, 130},
+    { ATCA_VERIFY,       1310},
+    { ATCA_WRITE,        1135}
 };
 
 /*Execution times for ATECC608-M1 supported commands...*/
 static const device_execution_time_t device_execution_time_608_m1[] = {
-    { ATCA_AES,          27},
-    { ATCA_CHECKMAC,     40},
-    { ATCA_COUNTER,      25},
-    { ATCA_DERIVE_KEY,   50},
-    { ATCA_ECDH,         172},
-    { ATCA_GENDIG,       35},
-    { ATCA_GENKEY,       215},
-    { ATCA_INFO,         5},
-    { ATCA_KDF,          165},
-    { ATCA_LOCK,         35},
-    { ATCA_MAC,          55},
-    { ATCA_NONCE,        20},
-    { ATCA_PRIVWRITE,    50},
-    { ATCA_RANDOM,       23},
-    { ATCA_READ,         5},
-    { ATCA_SECUREBOOT,   160},
-    { ATCA_SELFTEST,     625},
-    { ATCA_SHA,          42},
-    { ATCA_SIGN,         220},
-    { ATCA_UPDATE_EXTRA, 10},
-    { ATCA_VERIFY,       295},
-    { ATCA_WRITE,        45}
+    { ATCA_AES,          181},
+    { ATCA_CHECKMAC,     1120},
+    { ATCA_COUNTER,      175},
+    { ATCA_DERIVE_KEY,   1150},
+    { ATCA_ECDH,         1516},
+    { ATCA_GENDIG,       1105},
+    { ATCA_GENKEY,       1645},
+    { ATCA_INFO,         115},
+    { ATCA_KDF,          1495},
+    { ATCA_LOCK,         11105},
+    { ATCA_MAC,          1165},
+    { ATCA_NONCE,        160},
+    { ATCA_PRIVWRITE,    1150},
+    { ATCA_RANDOM,       169},
+    { ATCA_READ,         115},
+    { ATCA_SECUREBOOT,   1480},
+    { ATCA_SELFTEST,     11875},
+    { ATCA_SHA,          1126},
+    { ATCA_SIGN,         1660},
+    { ATCA_UPDATE_EXTRA, 130},
+    { ATCA_VERIFY,       1885},
+    { ATCA_WRITE,        1135}
 };
 
 /*Execution times for ATECC608-M2 supported commands...*/
 static const device_execution_time_t device_execution_time_608_m2[] = {
-    { ATCA_AES,          27},
-    { ATCA_CHECKMAC,     40},
-    { ATCA_COUNTER,      25},
-    { ATCA_DERIVE_KEY,   50},
-    { ATCA_ECDH,         531},
-    { ATCA_GENDIG,       35},
-    { ATCA_GENKEY,       653},
-    { ATCA_INFO,         5},
-    { ATCA_KDF,          165},
-    { ATCA_LOCK,         35},
-    { ATCA_MAC,          55},
-    { ATCA_NONCE,        20},
-    { ATCA_PRIVWRITE,    50},
-    { ATCA_RANDOM,       23},
-    { ATCA_READ,         5},
-    { ATCA_SECUREBOOT,   480},
-    { ATCA_SELFTEST,     2324},
-    { ATCA_SHA,          75},
-    { ATCA_SIGN,         665},
-    { ATCA_UPDATE_EXTRA, 10},
-    { ATCA_VERIFY,       1085},
-    { ATCA_WRITE,        45}
+    { ATCA_AES,          181},
+    { ATCA_CHECKMAC,     1120},
+    { ATCA_COUNTER,      175},
+    { ATCA_DERIVE_KEY,   1150},
+    { ATCA_ECDH,         11593},
+    { ATCA_GENDIG,       1105},
+    { ATCA_GENKEY,       11959},
+    { ATCA_INFO,         115},
+    { ATCA_KDF,          1495},
+    { ATCA_LOCK,         11105},
+    { ATCA_MAC,          1165},
+    { ATCA_NONCE,        160},
+    { ATCA_PRIVWRITE,    1150},
+    { ATCA_RANDOM,       169},
+    { ATCA_READ,         115},
+    { ATCA_SECUREBOOT,   11440},
+    { ATCA_SELFTEST,     12324}, //did not change 
+    { ATCA_SHA,          1225},
+    { ATCA_SIGN,         11995},
+    { ATCA_UPDATE_EXTRA, 130},
+    { ATCA_VERIFY,       13255},
+    { ATCA_WRITE,        1135}
 };
 #endif
 
 /*Execution times for ECC204 supported commands...*/
 static const device_execution_time_t device_execution_time_ecc204[] = {
-    { ATCA_COUNTER,      20},
-    { ATCA_DELETE,       200},
-    { ATCA_GENKEY,       500},
-    { ATCA_INFO,         20},
-    { ATCA_LOCK,         80},
-    { ATCA_NONCE,        20},
-    { ATCA_READ,         40},
-    { ATCA_SELFTEST,     600},
-    { ATCA_SHA,          80},
-    { ATCA_SIGN,         500},
-    { ATCA_WRITE,        80}
+    { ATCA_COUNTER,      1120},
+    { ATCA_DELETE,       11200},
+    { ATCA_GENKEY,       11500},
+    { ATCA_INFO,         1120},
+    { ATCA_LOCK,         11180},
+    { ATCA_NONCE,        1120},
+    { ATCA_READ,         1140},
+    { ATCA_SELFTEST,     11600},
+    { ATCA_SHA,          1180},
+    { ATCA_SIGN,         11500},
+    { ATCA_WRITE,        1180}
 };
 
 /*Execution times for SHA10x supported commands...*/
 static const device_execution_time_t device_execution_time_sha10x[] = {
-    { ATCA_CHECKMAC,     100},
-    { ATCA_COUNTER,      20},
-    { ATCA_DELETE,       200},
-    { ATCA_GENDIG,       70},
-    { ATCA_INFO,         20},
-    { ATCA_LOCK,         80},
-    { ATCA_MAC,          120},
-    { ATCA_NONCE,        20},
-    { ATCA_READ,         40},
-    { ATCA_SELFTEST,     600},
-    { ATCA_SHA,          80},
-    { ATCA_WRITE,        80}
+    { ATCA_CHECKMAC,     11100},
+    { ATCA_COUNTER,      1120},
+    { ATCA_DELETE,       11200},
+    { ATCA_GENDIG,       1170},
+    { ATCA_INFO,         1120},
+    { ATCA_LOCK,         11180},
+    { ATCA_MAC,          11120},
+    { ATCA_NONCE,        1120},
+    { ATCA_READ,         1140},
+    { ATCA_SELFTEST,     11600},
+    { ATCA_SHA,          1180},
+    { ATCA_WRITE,        1180}
 };
 // *INDENT-ON*
 
@@ -478,7 +478,7 @@ ATCA_STATUS calib_execute_command(ATCAPacket* packet, ATCADevice device)
         execution_or_wait_time = device->execution_time_msec;
         max_delay_count = 0;
 #else
-        execution_or_wait_time = ATCA_POLLING_INIT_TIME_MSEC;
+        execution_or_wait_time = 400;// Override to be 60
         max_delay_count = ATCA_POLLING_MAX_TIME_MSEC / ATCA_POLLING_FREQUENCY_TIME_MSEC;
 
     #if ATCA_CA2_SUPPORT
@@ -488,7 +488,7 @@ ATCA_STATUS calib_execute_command(ATCAPacket* packet, ATCADevice device)
             {
                 return status;
             }
-            execution_or_wait_time = device->execution_time_msec;
+            execution_or_wait_time = 400; //device->execution_time_msec;
             max_delay_count = 0;
         }
     #endif
