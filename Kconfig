@@ -2,7 +2,7 @@ menu "esp-cryptoauthlib"
 
     choice ATECC608A_TYPE
         prompt "Choose the type of ATECC608A chip"
-        default ATECC608A_TNG
+        default ATECC608A_TCUSTOM
         help
             There are three types of ATECC608A ( Secure Element) chips, which are
             Trust & GO, TrustFLex and Trust Custom. For more details consult README
